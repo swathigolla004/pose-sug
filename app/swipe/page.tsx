@@ -15,10 +15,13 @@ type Pose = {
 
 export default function SwipePage() {
   const [poses, setPoses] = useState<Pose[]>([]);
+  const [allPoses, setAllPoses] = useState<Pose[]>([]);
   const [index, setIndex] = useState(0);
   const [saved, setSaved] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('Swipe through the newest pose ideas.');
+  const [currentQuery, setCurrentQuery] = useState('');
+  const [currentCategory, setCurrentCategory] = useState('all');
 
   const current = poses[index];
   const token = typeof window !== 'undefined' ? localStorage.getItem('insposwipe-token') : null;
@@ -28,6 +31,7 @@ export default function SwipePage() {
     fetch('/api/poses')
       .then((res) => res.json())
       .then((data) => {
+        setAllPoses(data);
         setPoses(data);
         setIndex(0);
         setMessage(data.length ? 'Swipe the feed to discover more.' : 'No pose ideas available yet.');
@@ -45,6 +49,8 @@ export default function SwipePage() {
 
   function changeFilters(query: string, category: string) {
     setLoading(true);
+    setCurrentQuery(query);
+    setCurrentCategory(category);
     const params = new URLSearchParams();
     if (query) params.set('query', query);
     if (category !== 'all') params.set('category', category);
@@ -52,6 +58,7 @@ export default function SwipePage() {
     fetch(`/api/poses?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
+        setAllPoses(data);
         setPoses(data);
         setIndex(0);
         setMessage(data.length ? 'Keep swiping.' : 'No results, try a broader search or clear text.');
@@ -79,7 +86,16 @@ export default function SwipePage() {
       });
   }
 
-  const nextPose = () => setIndex((prev) => (poses.length ? (prev + 1) % poses.length : 0));
+  const nextPose = () => {
+    const newIndex = (index + 1) % poses.length;
+    setIndex(newIndex);
+    
+    // Load more poses when getting close to the end (80% through)
+    if (poses.length > 0 && newIndex >= Math.floor(poses.length * 0.8)) {
+      const duplicatedPoses = [...poses, ...allPoses];
+      setPoses(duplicatedPoses);
+    }
+  };
 
   const headCount = useMemo(() => `${index + 1}/${poses.length}`, [index, poses.length]);
 
@@ -87,11 +103,11 @@ export default function SwipePage() {
     <div className="mx-auto max-w-6xl px-5 pb-16 pt-10 text-slate-100">
       <div className="grid gap-8 lg:grid-cols-[0.9fr_0.45fr]">
         <div className="space-y-6">
-          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-glow">
-            <p className="text-sm uppercase tracking-[0.28em] text-pink-300">Swipe feed</p>
-            <h1 className="mt-3 text-4xl font-semibold text-white">Infinite pose discovery with a swipe-first flow.</h1>
-            <p className="mt-4 text-sm leading-7 text-slate-300">Filter the aesthetic categories, explore fresh motion-based compositions, and save the moments you want to recreate.</p>
-            <p className="mt-5 text-sm text-slate-400">{message}</p>
+          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-md">
+            <p className="text-sm uppercase tracking-[0.28em] text-pink-400 font-semibold">Swipe feed</p>
+            <h1 className="mt-3 text-4xl font-bold text-white drop-shadow-lg">Infinite pose discovery with a swipe-first flow.</h1>
+            <p className="mt-4 text-sm leading-7 text-slate-200 font-medium">Filter the aesthetic categories, explore fresh motion-based compositions, and save the moments you want to recreate.</p>
+            <p className="mt-5 text-sm text-slate-300 font-medium">{message}</p>
           </div>
           <div className="min-h-[78vh]">
             {loading ? (
