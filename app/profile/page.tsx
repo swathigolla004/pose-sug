@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<{ name: string; email: string; saved: string[] } | null>(null);
+  const [profile, setProfile] = useState<{ id: string; name: string; email: string; saved: string[] } | null>(null);
   const [status, setStatus] = useState('Loading profile...');
 
   useEffect(() => {

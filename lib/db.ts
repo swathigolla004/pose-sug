@@ -190,7 +190,11 @@ async function getUserCollection(): Promise<Collection<User> | null> {
   if (!client) {
     return null;
   }
-  return client.db().collection<User>('users');
+  try {
+    return client.db().collection<User>('users');
+  } catch {
+    return null;
+  }
 }
 
 async function ensureDemoUser(collection: Collection<User> | null) {

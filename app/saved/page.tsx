@@ -3,8 +3,18 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import PoseTile from '@/components/PoseTile';
 
+type Pose = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  moodTags: string[];
+  tips: string[];
+  image: string;
+};
+
 export default function SavedPage() {
-  const [poses, setPoses] = useState<any[]>([]);
+  const [poses, setPoses] = useState<Pose[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('Your saved pose collection will appear here.');
 
@@ -20,6 +30,7 @@ export default function SavedPage() {
       .then((data) => {
         setPoses(data);
       })
+      .catch(() => setPoses([]))
       .finally(() => setLoading(false));
   }, []);
 
@@ -34,7 +45,7 @@ export default function SavedPage() {
         <div className="rounded-[2rem] border border-white/10 bg-white/5 p-10 text-center text-slate-300">Loading your collection…</div>
       ) : poses.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {poses.map((pose) => (
+      {poses.map((pose) => (
             <PoseTile key={pose.id} pose={pose} />
           ))}
         </div>

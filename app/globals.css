@@ -69,3 +69,15 @@ button, input, textarea, select {
   border-color: rgba(15,23,42,0.12);
   background: rgba(15,23,42,0.06);
 }
+
+@supports (color: color-mix(in srgb, white, black)) {
+  .tag-pill {
+    border: 1px solid color-mix(in srgb, white 8%, transparent);
+    background: color-mix(in srgb, white 6%, transparent);
+  }
+  
+  .light .tag-pill {
+    border: 1px solid color-mix(in srgb, black 8%, transparent);
+    background: color-mix(in srgb, black 6%, transparent);
+  }
+}
